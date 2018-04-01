@@ -11,9 +11,19 @@ const server = http.Server(app);
 const socketIO = require('socket.io');
 const io = socketIO(server);
 
+const sockets = [];
+
+
 io.on('connection', (socket) => {
+  sockets.push(socket.id);
   socket.on('play', (data) => {
-    socket.emit('play', data);
+    let randomIndex = Math.floor(Math.random() * sockets.length);
+    io.to(sockets[randomIndex]).emit('play', data);
+  })
+
+  socket.on('disconnect', () => {
+    console.log("Disconnected: " + socket.id);
+    sockets.splice(sockets.indexOf(socket.id), 1);
   })
 })
 
